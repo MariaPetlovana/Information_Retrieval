@@ -25,3 +25,4 @@ class Index(object):
 
     def __not(self, query_list):
         return list()
+    
