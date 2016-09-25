@@ -11,6 +11,9 @@ class Index(object):
     def addToIndex(self, term, file_index):
         return
 
+    def addToIndex(self, term, file_index, word_pos):
+        return
+
     def getDictionary(self):
         return sorted(self.index)
 
@@ -25,4 +28,3 @@ class Index(object):
 
     def __not(self, query_list):
         return list()
-    

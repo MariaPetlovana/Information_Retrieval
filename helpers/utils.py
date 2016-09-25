@@ -1,4 +1,4 @@
 from enum import Enum
 
 class QueryType(Enum):
-    AND, OR, NOT = range(3)
+    AND, OR, NOT, UNDEFINED = range(4)

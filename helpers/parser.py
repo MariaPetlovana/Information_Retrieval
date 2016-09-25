@@ -1,32 +1,45 @@
 import re
+import shlex
+
+from collections import OrderedDict
 
 from helpers.utils import QueryType
 
-class Parser(object):
-    def getTextInRoundBrackets(self, text):
-        return re.findall('\((.*?)\)', text)
+def parseQueryWithRanges(text):
+    res = OrderedDict()
+    splitted_query = shlex.split(text)
+    for pair in splitted_query:
+        splitted = pair.split('/')
+        res[splitted[0].lower()] = int(splitted[1]) if len(splitted) == 2 else 0
 
-    def parseQuery(self, query):
-        and_pattern = re.compile('\([\w]*\) and \([\w]*\)')
-        if and_pattern.match(query):
-            return (self.getTextInRoundBrackets(query), QueryType.AND)
+    return OrderedDict(reversed(list(res.items())))
 
-        or_pattern = re.compile('\([\w]*\) or \([\w]*\)')
-        if or_pattern.match(query):
-            return (self.getTextInRoundBrackets(query), QueryType.OR)
+def getTextInRoundBrackets(text):
+    return re.findall('\((.*?)\)', text)
 
-        not_pattern = re.compile('\([\w]*\) not \([\w]*\)')
-        if not_pattern.match(query):
-            return (self.getTextInRoundBrackets(query), QueryType.NOT)
+def parseQuery(query):
+    and_pattern = re.compile('\([\w]*\) and \([\w]*\)')
+    if and_pattern.match(query):
+        return (getTextInRoundBrackets(query), QueryType.AND)
 
-    def separateWords(self, text):
-        splitter = re.compile('[^a-zA-Z]*')
-        return list([s.lower() for s in splitter.split(text) if s != ''])
+    or_pattern = re.compile('\([\w]*\) or \([\w]*\)')
+    if or_pattern.match(query):
+        return (getTextInRoundBrackets(query), QueryType.OR)
 
-    def getNamespace(self, element):
-        m = re.match('\{.*\}', element.tag)
-        return m.group(0) if m else ''
+    not_pattern = re.compile('\([\w]*\) not \([\w]*\)')
+    if not_pattern.match(query):
+        return (getTextInRoundBrackets(query), QueryType.NOT)
 
-    def checkIfStrinIsWord(self, string):
-        word_pattern = re.compile('[\w]*')
-        return word_pattern.match(string)
+    return ([], QueryType.UNDEFINED)
+
+def separateWords(text):
+    splitter = re.compile('[^a-zA-Z]*')
+    return list([s.lower() for s in splitter.split(text) if s != ''])
+
+def getNamespace(element):
+    m = re.match('\{.*\}', element.tag)
+    return m.group(0) if m else ''
+
+def checkIfStrinIsWord(string):
+    word_pattern = re.compile('[\w]*')
+    return word_pattern.match(string)
