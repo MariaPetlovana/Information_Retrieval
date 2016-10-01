@@ -1,4 +1,4 @@
-from trees.tree import Tree
+from wildcard.tree import Tree
 
 class Trie(object):
     def __init__(self, letters_number):

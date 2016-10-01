@@ -43,3 +43,7 @@ def getNamespace(element):
 def checkIfStrinIsWord(string):
     word_pattern = re.compile('[\w]*')
     return word_pattern.match(string)
+
+def getIndicesOfChar(str, char):
+    return [i for i, letter in enumerate(str) if letter == char]
+

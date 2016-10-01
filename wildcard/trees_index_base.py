@@ -7,9 +7,6 @@ class TreesIndexBase(object):
     def find(self, query):
         return list()
 
-    def getIndicesOfChar(self, str, char):
-        return [i for i, letter in enumerate(str) if letter == char]
-
     def getAllWordsWithMiddleWord(self, words, middle_word, start_pos, end_pos_delta):
         res = list()
         for w in words:

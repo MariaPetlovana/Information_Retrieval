@@ -12,8 +12,9 @@ from index.coordinate_index import CoordinateIndex
 from index.two_word_index import TwoWordIndex
 from index.index_manager import IndexManager
 
-from trees.trees_index import TreesIndex
-from trees.permutative_index import PermutativeIndex
+from wildcard.trees_index import TreesIndex
+from wildcard.permutative_index import PermutativeIndex
+from wildcard.threeGram_index import ThreeGramIndex
 
 def phraseSearchScenario(fb2_directory):
     fb2io = Fb2io(fb2_directory)
@@ -69,8 +70,12 @@ def jokerSearchScenario(fb2_directory):
     fb2io = Fb2io(fb2_directory)
     fb2_files = fb2io.getFb2Files()
 
+    file_counter = 0
+    inverted_index = InvertedIndex()
+
     trees_index = TreesIndex()
     permutative_index = PermutativeIndex()
+    threeGram_index = ThreeGramIndex()
 
     for file in fb2_files:
         words_counter = 0
@@ -79,10 +84,13 @@ def jokerSearchScenario(fb2_directory):
         while f.canRead():
             words = f.getText()
             for word in words:
-                trees_index.addWord(word)
-                permutative_index.addWord(word)
+                inverted_index.addToIndex(word, file_counter, words_counter)
+                #trees_index.addWord(word)
+                #permutative_index.addWord(word)
+                threeGram_index.addWord(word)
 
         f.close()
+        file_counter += 1
 
     print("Please input a query with wildcard. Press Q to quit")
 
@@ -92,8 +100,20 @@ def jokerSearchScenario(fb2_directory):
             break
 
         #words = trees_index.find(user_input)
-        words = permutative_index.find(user_input)
-        print(words)
+        #words = permutative_index.find(user_input)
+        words = threeGram_index.find(user_input)
+
+        if not words:
+            print("There are no documents where all the query words are present")
+        else:
+            for word in words:
+                documents_indices = inverted_index.index[word][1]
+                docs = list()
+
+                for index in documents_indices:
+                    docs.append(fb2_files[index])
+
+                print(word, docs)
 
 if __name__ == "__main__":
     fb2_directory = "E:\\books1"

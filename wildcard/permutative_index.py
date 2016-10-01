@@ -1,5 +1,7 @@
-from trees.trees_index_base import*
-from trees.trie import Trie
+from wildcard.trees_index_base import*
+from wildcard.trie import Trie
+
+from helpers.parser import*
 
 class PermutativeIndex(TreesIndexBase):
     def __init__(self):
@@ -25,7 +27,7 @@ class PermutativeIndex(TreesIndexBase):
             return list()
 
         if wildcards_number == 2:
-            wildcard_indices = self.getIndicesOfChar(query, '*')
+            wildcard_indices = getIndicesOfChar(query, '*')
             middle_word = query[(wildcard_indices[0] + 1) : wildcard_indices[1]]
             suffix_len = len(query[(wildcard_indices[1] + 1):])
 

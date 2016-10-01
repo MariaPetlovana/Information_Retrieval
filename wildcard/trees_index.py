@@ -1,5 +1,7 @@
-from trees.trees_index_base import*
-from trees.trie import Trie
+from wildcard.trees_index_base import*
+from wildcard.trie import Trie
+
+from helpers.parser import*
 
 class TreesIndex(TreesIndexBase):
     def __init__(self):
@@ -35,7 +37,7 @@ class TreesIndex(TreesIndexBase):
         words_from_trees = list(set.intersection(set(prefix_words), set(suffix_words)))
 
         if wildcards_number == 2:
-            wildcard_indices = self.getIndicesOfChar(query, '*')
+            wildcard_indices = getIndicesOfChar(query, '*')
             middle_word = query[(wildcard_indices[0] + 1) : wildcard_indices[1]]
             suffix_len = len(query[(wildcard_indices[1] + 1):])
             return sorted(self.getAllWordsWithMiddleWord(words_from_trees, middle_word, wildcard_indices[0], suffix_len))
