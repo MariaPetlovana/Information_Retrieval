@@ -1,1 +1,1 @@
-__author__ = 'Masha'
+__author__ = 'Mariia Petlovana'
