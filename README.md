@@ -17,7 +17,7 @@ This project is written in Python and provides data structures for the search en
     - besides storing documents list, for each document also a list of word's positions in the document is stored
     - phrase search
     - search of word in a range
- - Suffix and Prefix trees
+  - Suffix and Prefix trees
     - trie
     - wildcard search
  - Permutative index
