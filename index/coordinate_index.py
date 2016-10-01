@@ -36,6 +36,11 @@ class CoordinateIndex(Index):
 
         documents_with_poses = self.index.get(query_list[0], dict())
         for i in range(1, len(query_list)):
+            # no sense to continue intersect documents lists if
+            # the temporary result list is already empty
+            if not documents_with_poses:
+                break
+
             documents_with_poses = self.__intersect(documents_with_poses, self.index.get(query_list[i], dict()))
 
         return documents_with_poses

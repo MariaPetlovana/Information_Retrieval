@@ -21,7 +21,8 @@ if __name__ == "__main__":
     file_counter = 0
     incidence_matrix = IncidenceMatrix(len(fb2_files))
     coordinate_index = CoordinateIndex()
-    two_word_index = TwoWordIndex()
+    inverted_index = InvertedIndex()
+    two_word_index = TwoWordIndex(inverted_index)
 
     for file in fb2_files:
         words_counter = 0
@@ -30,6 +31,7 @@ if __name__ == "__main__":
         while f.canRead():
             words = f.getText()
             for word in words:
+                inverted_index.addToIndex(word, file_counter, words_counter)
                 coordinate_index.addToIndex(word, file_counter, words_counter)
                 two_word_index.addToIndex(word, file_counter)
                 words_counter += 1
