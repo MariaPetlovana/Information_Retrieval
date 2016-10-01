@@ -20,10 +20,10 @@ This project is written in Python and provides data structures for the search en
   - Suffix and Prefix trees
     - trie
     - wildcard search
- - Permutative index
+  - Permutative index
     - trie
     - wildcard search
- - 3gram index
+  - 3gram index
     - inverted index
     - 3gram-word matching
 
