@@ -1,5 +1,8 @@
 from enum import Enum
 
+from fb2io.fb2io import Fb2io
+from fb2io.fb2File import Fb2File
+
 from helpers.utils import QueryType
 
 from index.index import Index
@@ -9,12 +12,9 @@ from index.coordinate_index import CoordinateIndex
 from index.two_word_index import TwoWordIndex
 from index.index_manager import IndexManager
 
-from fb2io.fb2io import Fb2io
-from fb2io.fb2File import Fb2File
+from trees.trees_index import TreesIndex
 
-if __name__ == "__main__":
-    fb2_directory = "E:\\books1"
-
+def phraseSearchScenario(fb2_directory):
     fb2io = Fb2io(fb2_directory)
     fb2_files = fb2io.getFb2Files()
 
@@ -63,3 +63,34 @@ if __name__ == "__main__":
                 if type(documents_indices) is dict:
                     for pos in documents_indices[index]:
                         print(pos)
+
+def jokerSearchScenario(fb2_directory):
+    fb2io = Fb2io(fb2_directory)
+    fb2_files = fb2io.getFb2Files()
+
+    trees_index = TreesIndex()
+
+    for file in fb2_files:
+        words_counter = 0
+        f = Fb2File(file)
+        f.open()
+        while f.canRead():
+            words = f.getText()
+            for word in words:
+                trees_index.addWord(word)
+
+        f.close()
+
+    print("Please input a query with wildcard. Press Q to quit")
+
+    while True:
+        user_input = input()
+        if user_input.lower() == "q":
+            break
+
+        words = trees_index.find(user_input)
+        print(words)
+
+if __name__ == "__main__":
+    fb2_directory = "E:\\books1"
+    jokerSearchScenario(fb2_directory)
