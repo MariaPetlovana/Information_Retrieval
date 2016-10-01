@@ -13,6 +13,7 @@ from index.two_word_index import TwoWordIndex
 from index.index_manager import IndexManager
 
 from trees.trees_index import TreesIndex
+from trees.permutative_index import PermutativeIndex
 
 def phraseSearchScenario(fb2_directory):
     fb2io = Fb2io(fb2_directory)
@@ -69,6 +70,7 @@ def jokerSearchScenario(fb2_directory):
     fb2_files = fb2io.getFb2Files()
 
     trees_index = TreesIndex()
+    permutative_index = PermutativeIndex()
 
     for file in fb2_files:
         words_counter = 0
@@ -78,6 +80,7 @@ def jokerSearchScenario(fb2_directory):
             words = f.getText()
             for word in words:
                 trees_index.addWord(word)
+                permutative_index.addWord(word)
 
         f.close()
 
@@ -88,7 +91,8 @@ def jokerSearchScenario(fb2_directory):
         if user_input.lower() == "q":
             break
 
-        words = trees_index.find(user_input)
+        #words = trees_index.find(user_input)
+        words = permutative_index.find(user_input)
         print(words)
 
 if __name__ == "__main__":
