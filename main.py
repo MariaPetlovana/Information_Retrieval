@@ -85,12 +85,14 @@ def jokerSearchScenario(fb2_directory):
             words = f.getText()
             for word in words:
                 inverted_index.addToIndex(word, file_counter, words_counter)
-                #trees_index.addWord(word)
-                #permutative_index.addWord(word)
-                threeGram_index.addWord(word)
 
         f.close()
         file_counter += 1
+
+    for term in inverted_index.getDictionary():
+        #trees_index.addWord(term)
+        #permutative_index.addWord(term)
+        threeGram_index.addWord(term)
 
     print("Please input a query with wildcard. Press Q to quit")
 
