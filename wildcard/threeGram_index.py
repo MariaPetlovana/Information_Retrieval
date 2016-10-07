@@ -30,7 +30,8 @@ class ThreeGramIndex(object):
 
             words &= self.index.get(threeGrams[i], OrderedSet())
 
-        return list(words)
+        pattern = re.compile(query.replace("*", ".+"))
+        return [word for word in words if pattern.match(word)]
 
     def __splitTo3grams(self, word, is_query = False):
         threeGrams = OrderedSet()
