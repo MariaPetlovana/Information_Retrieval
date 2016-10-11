@@ -5,10 +5,6 @@ from helpers.utils import QueryType
 class IncidenceMatrix(Index):
     def __init__(self, files_count):
         Index.__init__(self)
-        self.execute_query = {QueryType.AND : self.__and,
-                              QueryType.OR :  self.__or,
-                              QueryType.NOT : self.__not
-                              }
         self.files_count = files_count
         self.default_value = list("0" * self.files_count)
 
@@ -20,11 +16,11 @@ class IncidenceMatrix(Index):
 
         self.index[term] = value
 
-    def __and(self, query_list, is_inverse_term_docs_presence_list = False):
+    def _and(self, query_list, is_inverse_term_docs_presence_list = False):
         res = self.__getIntersection(query_list, is_inverse_term_docs_presence_list)
         return self.__getDocumentsIndicesList(res)
 
-    def __or(self, query_list):
+    def _or(self, query_list):
         res = list(self.default_value)
 
         for term in query_list:
@@ -35,7 +31,7 @@ class IncidenceMatrix(Index):
 
         return self.__getDocumentsIndicesList(res)
 
-    def __not(self, query_list):
+    def _not(self, query_list):
         return self.__and(query_list, True)
 
     def __getReverseString(self, string):

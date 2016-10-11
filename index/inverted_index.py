@@ -3,12 +3,16 @@ from index.index import Index
 from helpers.utils import QueryType
 
 class InvertedIndex(Index):
-    def __init__(self):
-        Index.__init__(self)
-        self.execute_query = {QueryType.AND : self.__and,
-                              QueryType.OR :  self.__or,
-                              QueryType.NOT : self.__not
-                              }
+    def __init__(self, use_ordered_dict = False):
+        Index.__init__(self, use_ordered_dict)
+
+    def getSortedIndex(self):
+        sorted_index = InvertedIndex(True)
+
+        for key in sorted(self.index):
+            sorted_index.index[key] = self.index[key]
+
+        return sorted_index
 
     def getWordIndex(self, term):
         return self.index.get(term, (-1, list()))[0]
@@ -19,7 +23,7 @@ class InvertedIndex(Index):
             value[1].append(file_index)
         self.index[term] = value
 
-    def __and(self, query_list):
+    def _and(self, query_list):
         res = list()
         value1 = self.index.get(query_list[0], (-1, list()))
         value2 = self.index.get(query_list[1], (-1, list()))
@@ -39,7 +43,7 @@ class InvertedIndex(Index):
 
         return res
 
-    def __or(self, query_list):
+    def _or(self, query_list):
         res = list()
         value1 = self.index.get(query_list[0], (-1, list()))
         value2 = self.index.get(query_list[1], (-1, list()))
@@ -69,7 +73,7 @@ class InvertedIndex(Index):
 
         return res
 
-    def __not(self, query_list):
+    def _not(self, query_list):
         res = list()
         value1 = self.index.get(query_list[0], (-1, list()))
         value2 = self.index.get(query_list[1], (-1, list()))

@@ -16,6 +16,8 @@ from wildcard.trees_index import TreesIndex
 from wildcard.permutative_index import PermutativeIndex
 from wildcard.threeGram_index import ThreeGramIndex
 
+from optimization.spimi import*
+
 def phraseSearchScenario(fb2_directory):
     fb2io = Fb2io(fb2_directory)
     fb2_files = fb2io.getFb2Files()
@@ -117,6 +119,10 @@ def jokerSearchScenario(fb2_directory):
 
                 print(word, docs)
 
+def spimiScenario(fb2_directory):
+    output_file = "E:\\books1\\output.txt"
+    spimi(fb2_directory, output_file)
+
 if __name__ == "__main__":
     fb2_directory = "E:\\books1"
-    jokerSearchScenario(fb2_directory)
+    spimiScenario(fb2_directory)
