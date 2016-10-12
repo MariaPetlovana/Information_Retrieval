@@ -120,9 +120,9 @@ def jokerSearchScenario(fb2_directory):
                 print(word, docs)
 
 def spimiScenario(fb2_directory):
-    output_file = "E:\\books1\\output.txt"
+    output_file = fb2_directory + "\\output.txt"
     spimi(fb2_directory, output_file)
 
 if __name__ == "__main__":
-    fb2_directory = "E:\\books1"
+    fb2_directory = "E:\\books"
     spimiScenario(fb2_directory)

@@ -7,9 +7,11 @@ from helpers.utils import*
 
 from orderedset import OrderedSet
 
+import os
 import ast
-import operator
+import shutil
 
+BLOCK_DIR = "blocks"
 BLOCK_NAME_PATTERN = "block{}.txt"
 
 def getIndexTriplesFromDoc(file_index, words, word_pos_start):
@@ -22,17 +24,17 @@ def generateTokenStream(fb2_directory, block_size):
     fb2_files = fb2io.getFb2Files()
 
     file_counter = 0
+    block_index = 0
 
     for file in fb2_files:
         words_counter = 0
-        block_index = 0
         f = Fb2File(file)
         f.open()
         while f.canRead():
             words = f.getText()
             token_stream.extend(getIndexTriplesFromDoc(file_counter, words, words_counter))
             if len(token_stream) >= block_size:
-                yield block_index, token_stream
+                yield block_index, token_stream[:block_size]
                 block_index += 1
                 token_stream = token_stream[block_size:]
             words_counter += len(words)
@@ -44,7 +46,8 @@ def generateTokenStream(fb2_directory, block_size):
         yield block_index, token_stream
 
 def spimiInvert(input_dir, block_index, token_stream):
-	output_file = (input_dir + "\\" + BLOCK_NAME_PATTERN).format(block_index)
+	output_file = (input_dir + "\\" + BLOCK_DIR + "\\" + BLOCK_NAME_PATTERN).format(block_index)
+	os.makedirs(os.path.dirname(output_file), exist_ok = True)
 
 	inverted_index = InvertedIndex()
 	for token in token_stream:
@@ -58,14 +61,12 @@ def spimiInvert(input_dir, block_index, token_stream):
 
 def mergeStep(terms_and_docs):
     terms_and_docs.sort()
-    res_list = []
     files_to_read_further = []
     term = terms_and_docs[0][0]
     terms_list = [t for t, l, j in terms_and_docs]
     count = terms_list.count(term)
     if count == 1:
-        res_list.append((term, terms_and_docs[0][1]))
-        files_to_read_further.append(terms_and_docs[0][2])
+        return (term, terms_and_docs[0][1]), [terms_and_docs[0][2]]
     else:
         index = terms_list.index(term)
         d_list = OrderedSet()
@@ -74,18 +75,17 @@ def mergeStep(terms_and_docs):
             d_list |= l
             files_to_read_further.append(block_id)
 
-        res_list.append((term, list(d_list)))
+        return (term, list(d_list)), files_to_read_further
 
-    return res_list, files_to_read_further
-
-def mergeBlocks(blocks, output_file):
+def mergeBlocks(blocks, output_file, block_size):
     with open(output_file, 'wt') as index:
         files = [open(b,'rt') for b in blocks]
         res = []
         lines = [None] * len(files)
         files_to_read = list(range(0, len(files)))
 
-        while True:
+        j = 0
+        while j < block_size:
             for i in range(len(files)):
                 if i in files_to_read:
                     lines[i] = files[i].readline()
@@ -104,10 +104,17 @@ def mergeBlocks(blocks, output_file):
 
             merged, read_next = mergeStep(terms_and_docs)
             files_to_read = read_next
-            res.extend(merged)
+            res.append(merged)
+            j += 1
+            if j == block_size:
+                for term, docs_list in res:
+                    index.write('{},{}\n'.format(term, docs_list))
+                del res[:]
+                j = 0
 
         for term, docs_list in res:
             index.write('{},{}\n'.format(term, docs_list))
+
         for f in files:
             f.close()
 
@@ -116,4 +123,5 @@ def spimi(input_dir, output_file, block_size = 1 << 16):
               for block_index, tokens_block
               in generateTokenStream(input_dir, block_size)]
 
-    mergeBlocks(blocks, output_file)
+    mergeBlocks(blocks, output_file, block_size)
+    shutil.rmtree(input_dir + "\\" + BLOCK_DIR)

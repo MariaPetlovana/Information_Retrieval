@@ -27,6 +27,8 @@ This project is written in Python and provides data structures for the search en
     - inverted index
     - 3gram-word matching
 
+Storage optimization is provided -> SPIMI algorithm is used to improve CPU usage while constructing index for large amount of files.
+
 Also, to work with fb2 files, appropriate classes for reading reading and parsing text from fb2 files are present.
 
 ### Tech
