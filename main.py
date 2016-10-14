@@ -17,6 +17,7 @@ from wildcard.permutative_index import PermutativeIndex
 from wildcard.threeGram_index import ThreeGramIndex
 
 from optimization.spimi import*
+from optimization.compression import Compressor
 
 def phraseSearchScenario(fb2_directory):
     fb2io = Fb2io(fb2_directory)
@@ -35,18 +36,22 @@ def phraseSearchScenario(fb2_directory):
         while f.canRead():
             words = f.getText()
             for word in words:
-                inverted_index.addToIndex(word, file_counter, words_counter)
-                coordinate_index.addToIndex(word, file_counter, words_counter)
-                two_word_index.addToIndex(word, file_counter)
+                inverted_index.addToIndex(word, file_counter + 1, words_counter)
+                coordinate_index.addToIndex(word, file_counter + 1, words_counter)
+                two_word_index.addToIndex(word, file_counter + 1)
                 words_counter += 1
 
         f.close()
         file_counter += 1
 
     result_file = open(fb2_directory + "\\dictionary.txt", "w+");
-    for word in coordinate_index.getDictionary():
+    for word in inverted_index.getDictionary():
         result_file.write(word + "\n")
     result_file.close()
+
+    comp = Compressor(4, inverted_index)
+    comp.compress()
+    comp.save(fb2_directory + "\\compressed")
 
     index_manager = IndexManager(coordinate_index, two_word_index)
 
@@ -63,9 +68,9 @@ def phraseSearchScenario(fb2_directory):
             print("There are no documents where all the query words are present")
         else:
             for index in documents_indices:
-                print(fb2_files[index])
+                print(fb2_files[index - 1])
                 if type(documents_indices) is dict:
-                    for pos in documents_indices[index]:
+                    for pos in documents_indices[index - 1]:
                         print(pos)
 
 def jokerSearchScenario(fb2_directory):
@@ -124,5 +129,5 @@ def spimiScenario(fb2_directory):
     spimi(fb2_directory, output_file)
 
 if __name__ == "__main__":
-    fb2_directory = "E:\\books"
-    spimiScenario(fb2_directory)
+    fb2_directory = "E:\\books1"
+    phraseSearchScenario(fb2_directory)
