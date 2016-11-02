@@ -23,23 +23,36 @@ class InvertedIndex(Index):
             value[1].append(file_index)
         self.index[term] = value
 
-    def _and(self, query_list):
-        res = list()
-        value1 = self.index.get(query_list[0], (-1, list()))
-        value2 = self.index.get(query_list[1], (-1, list()))
+    def _getFilesList(self, term):
+        return self.index.get(term, (-1, list()))[1]
 
-        i = 0
-        j = 0
-        while i < len(value1[1]) and j < len(value2[1]):
-            if value1[1][i] == value2[1][j]:
-                res.append(value1[1][i])
-                i += 1
-                j += 1
-            else:
-                if value1[1][i] < value2[1][j]:
+    def _and(self, query_list):
+        if not query_list:
+            return list()
+
+        if len(query_list) == 1:
+            return self._getFilesList(query_list[0])
+
+        res = self._getFilesList(query_list[0])
+
+        for k in range(1, len(query_list)):
+            value = self._getFilesList(query_list[k])
+            temp_res = list()
+
+            i = 0
+            j = 0
+            while i < len(value) and j < len(res):
+                if value[i] == res[j]:
+                    temp_res.append(value[i])
                     i += 1
-                else:
                     j += 1
+                else:
+                    if value[i] < res[j]:
+                        i += 1
+                    else:
+                        j += 1
+
+            res = temp_res
 
         return res
 

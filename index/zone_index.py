@@ -26,39 +26,41 @@ class ZoneIndex(InvertedIndex):
 
         self.index[term] = docs_list
 
+    def _getFilesList(self, term):
+        return list(self.index.get(term, dict()).keys())
+
     def _and(self, query_list):
-        query_list = separateWords(query_list)
+        intersected_files = super(ZoneIndex, self)._and(query_list)
         scores = [0.0] * self.files_count
 
-        res = list()
-        docs_dict1 = self.index.get(query_list[0], dict())
-        docs_dict2 = self.index.get(query_list[1], dict())
-
-        i = 0
-        j = 0
-
-        files1 = list(docs_dict1.keys())
-        files2 = list(docs_dict2.keys())
-
-        while i < len(files1) and j < len(files2):
-            if files1[i] == files2[j]:
-                boolean_score = self.__getBooleanScore(files1[i], query_list)
-                scores[files1[i]] = self.__weightedZone(boolean_score)
-                i += 1
-                j += 1
-            else:
-                if files1[i] < files2[j]:
-                    i += 1
-                else:
-                    j += 1
+        for f in intersected_files:
+            score = self.__getBooleanScore(f, query_list) if len(query_list) == 2 \
+                else self.__getRelativeScore(f, query_list)
+            scores[f] = self.__weightedZone(score)
 
         return scores
 
-    def __weightedZone(self, boolean_score):
+    def __weightedZone(self, scores):
         weights = []
         for i in range(ZONES_NUMBER):
-            weights.append(self.zone_weights[Zone(i)] * boolean_score[i])
+            weights.append(self.zone_weights[Zone(i)] * scores[i])
         return sum(weights)
+
+    def __getRelativeScore(self, doc_id, query_list):
+        zones_coeficients = []
+
+        for z in Zone:
+            zone_contain_terms_counter = len(query_list)
+
+            for term in query_list:
+                zones = self.index[term][doc_id]
+                if z not in zones:
+                    zone_contain_terms_counter -= 1
+                    break
+
+            zones_coeficients.append((1.0 * zone_contain_terms_counter) / len(query_list))
+
+        return zones_coeficients
 
     def __getBooleanScore(self, doc_id, query_list):
         zones_contain_query = []

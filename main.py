@@ -4,6 +4,7 @@ from fb2io.fb2io import Fb2io
 from fb2io.fb2File import Fb2File
 
 from helpers.utils import QueryType
+from helpers.parser import*
 
 from index.index import Index
 from index.incidence_matrix import IncidenceMatrix
@@ -99,7 +100,8 @@ def zoneScenario(fb2_directory):
         if user_input.lower() == "q":
             break
 
-        documents_scores = zone_index.search(user_input, QueryType.AND)
+        query_list = separateWords(user_input)
+        documents_scores = zone_index.search(query_list, QueryType.AND)
         documents_indices = sorted(
             [(s, i) for s, i in zip(documents_scores, range(file_counter))],
             key = lambda x: x[0],

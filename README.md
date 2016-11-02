@@ -26,6 +26,9 @@ This project is written in Python and provides data structures for the search en
   - *3gram index*
     - inverted index
     - 3gram-word matching
+  - *Zone index*
+    - inverted index
+    - term-zone based ranking
 
 Storage **optimization** is provided:
 
