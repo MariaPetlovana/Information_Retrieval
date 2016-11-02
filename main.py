@@ -11,6 +11,7 @@ from index.inverted_index import InvertedIndex
 from index.coordinate_index import CoordinateIndex
 from index.two_word_index import TwoWordIndex
 from index.index_manager import IndexManager
+from index.zone_index import ZoneIndex
 
 from wildcard.trees_index import TreesIndex
 from wildcard.permutative_index import PermutativeIndex
@@ -73,6 +74,47 @@ def phraseSearchScenario(fb2_directory):
                     for pos in documents_indices[index - 1]:
                         print(pos)
 
+def zoneScenario(fb2_directory):
+    fb2io = Fb2io(fb2_directory)
+    fb2_files = fb2io.getFb2Files()
+
+    file_counter = 0
+    zone_index = ZoneIndex(len(fb2_files))
+
+    for file in fb2_files:
+        f = Fb2File(file)
+        f.open(True)
+        while f.canRead():
+            zone, words = f.getText()
+            for word in words:
+                zone_index.addToIndex(word, file_counter, zone)
+
+        f.close()
+        file_counter += 1
+
+    print("Please input a phrase to search. Press Q to quit")
+
+    while True:
+        user_input = input()
+        if user_input.lower() == "q":
+            break
+
+        documents_scores = zone_index.search(user_input, QueryType.AND)
+        documents_indices = sorted(
+            [(s, i) for s, i in zip(documents_scores, range(file_counter))],
+            key = lambda x: x[0],
+            reverse = True)
+
+        query_words_not_found = True
+
+        for score, index in documents_indices:
+            if score > 0.0:
+                print(fb2_files[index], score)
+                query_words_not_found = False
+
+        if query_words_not_found is True:
+            print("There are no documents where all the query words are present")
+
 def jokerSearchScenario(fb2_directory):
     fb2io = Fb2io(fb2_directory)
     fb2_files = fb2io.getFb2Files()
@@ -130,4 +172,7 @@ def spimiScenario(fb2_directory):
 
 if __name__ == "__main__":
     fb2_directory = "E:\\books1"
-    phraseSearchScenario(fb2_directory)
+    zoneScenario(fb2_directory)
+    #jokerSearchScenario(fb2_directory)
+    #spimiScenario(fb2_directory)
+    #phraseSearchScenario(fb2_directory)
