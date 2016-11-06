@@ -19,6 +19,7 @@ from wildcard.permutative_index import PermutativeIndex
 from wildcard.threeGram_index import ThreeGramIndex
 
 from optimization.spimi import*
+from optimization.clusterization import*
 from optimization.compression import Compressor
 
 def phraseSearchScenario(fb2_directory):
@@ -36,7 +37,7 @@ def phraseSearchScenario(fb2_directory):
         f = Fb2File(file)
         f.open()
         while f.canRead():
-            words = f.getText()
+            words = f.getText()[1]
             for word in words:
                 inverted_index.addToIndex(word, file_counter + 1, words_counter)
                 coordinate_index.addToIndex(word, file_counter + 1, words_counter)
@@ -133,7 +134,7 @@ def jokerSearchScenario(fb2_directory):
         f = Fb2File(file)
         f.open()
         while f.canRead():
-            words = f.getText()
+            words = f.getText()[1]
             for word in words:
                 inverted_index.addToIndex(word, file_counter, words_counter)
 
@@ -168,13 +169,38 @@ def jokerSearchScenario(fb2_directory):
 
                 print(word, docs)
 
+def clusterizationScenario(fb2_directory):
+    fb2io = Fb2io(fb2_directory)
+    fb2_files = fb2io.getFb2Files()
+
+    file_counter = 0
+    inverted_index = InvertedIndex()
+
+    for file in fb2_files:
+        f = Fb2File(file)
+        f.open()
+        while f.canRead():
+            words = f.getText()[1]
+            for word in words:
+                inverted_index.addToIndex(word, file_counter, -1)
+
+        f.close()
+        file_counter += 1
+
+    clusters = getClustersForDocuments(inverted_index, file_counter, True)
+    for leader, followers in clusters.items():
+        print("Leader: {}".format(fb2_files[leader]))
+        for doc_id in followers:
+            print("\t{}".format(fb2_files[doc_id]))
+
 def spimiScenario(fb2_directory):
     output_file = fb2_directory + "\\output.txt"
     spimi(fb2_directory, output_file)
 
 if __name__ == "__main__":
-    fb2_directory = "E:\\books1"
-    zoneScenario(fb2_directory)
+    fb2_directory = "E:\\books"
+    clusterizationScenario(fb2_directory)
+    #zoneScenario(fb2_directory)
     #jokerSearchScenario(fb2_directory)
     #spimiScenario(fb2_directory)
     #phraseSearchScenario(fb2_directory)

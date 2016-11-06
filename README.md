@@ -30,6 +30,8 @@ This project is written in Python and provides data structures for the search en
     - inverted index
     - term-zone based ranking
 
+Added document-term vectors clusterization based on cosine similarities.
+
 Storage **optimization** is provided:
 
 * [SPIMI](http://nlp.stanford.edu/IR-book/html/htmledition/single-pass-in-memory-indexing-1.html) algorithm is used to improve CPU usage while constructing index for large amount of files. 

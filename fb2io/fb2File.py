@@ -51,8 +51,6 @@ class Fb2File:
                 return False
 
     def getText(self):
-        words = list()
-
         if not self.zone_retrieval:
             return self.__getTextFromSingleTag()
 
@@ -70,7 +68,7 @@ class Fb2File:
                 words = separateWords(paragraph)
 
         self.elem.clear()
-        return words if not self.zone_retrieval else Zone.BODY, words
+        return Zone.BODY, words
 
     def __getTextFromChildren(self):
         words = []

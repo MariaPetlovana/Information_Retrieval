@@ -6,6 +6,9 @@ class InvertedIndex(Index):
     def __init__(self, use_ordered_dict = False):
         Index.__init__(self, use_ordered_dict)
 
+    def getUniqueWordsCount(self):
+        return len(self.index)
+
     def getSortedIndex(self):
         sorted_index = InvertedIndex(True)
 
@@ -16,6 +19,9 @@ class InvertedIndex(Index):
 
     def getWordIndex(self, term):
         return self.index.get(term, (-1, list()))[0]
+
+    def getDocumentsList(self, term):
+        return self.index.get(term, (-1, list()))[1]
 
     def addToIndex(self, term, file_index, word_pos):
         value = self.index.get(term, (word_pos, list()))
