@@ -1,10 +1,10 @@
 from bitstring import BitArray
-
 import os
+from pickle import dump
 
 NUMBER_OF_BITS_IN_BYTE = 8
-DICTIONARY_FILE = "dictionary.txt"
-POSTINGS_FILE = "postings.txt"
+DICTIONARY_FILE = "dictionary.bin"
+POSTINGS_FILE = "postings.bin"
 
 class Compressor(object):
     def __init__(self, block_size, index):
@@ -28,10 +28,13 @@ class Compressor(object):
         os.makedirs(os.path.dirname(dictionary_file), exist_ok = True)
         os.makedirs(os.path.dirname(posting_file), exist_ok = True)
 
-        with open(dictionary_file, 'wt') as dict_file, open(posting_file, 'wt') as docs_file:
+        with open(dictionary_file, 'wb') as dict_file, open(posting_file, 'wb') as docs_file:
             for index, data in self.table.items():
-                dict_file.write('{},{}\n'.format(index, data[0] if data[0] != None else ""))
-                docs_file.write('{},{}\n'.format(index, data[1].bin))
+                dict_file.write(bytes(index))
+                if data[0] is not None:
+                    dict_file.write(bytes(data[0]))
+                docs_file.write(bytes(index))
+                data[1].tofile(docs_file)
 
             dict_file.close()
             docs_file.close()

@@ -3,7 +3,7 @@ from enum import Enum
 from fb2io.fb2io import Fb2io
 from fb2io.fb2File import Fb2File
 
-from helpers.utils import QueryType
+from helpers.utils import*
 from helpers.parser import*
 
 from index.index import Index
@@ -21,6 +21,11 @@ from wildcard.threeGram_index import ThreeGramIndex
 from optimization.spimi import*
 from optimization.clusterization import*
 from optimization.compression import Compressor
+
+from evaluation.test_files_reader import TestDataReader
+from evaluation.test_keys import*
+from evaluation.queries_reader import QueriesReader
+from evaluation.unranked_evaluation import*
 
 def phraseSearchScenario(fb2_directory):
     fb2io = Fb2io(fb2_directory)
@@ -197,10 +202,37 @@ def spimiScenario(fb2_directory):
     output_file = fb2_directory + "\\output.txt"
     spimi(fb2_directory, output_file)
 
+def testScenario(files_directory):
+    inverted_index = InvertedIndex()
+    words_counter = 0
+    reader = TestDataReader(getAllFilesWithExt(files_directory, '.1400')[0])
+    for words in reader.getWords():
+        for word in words:
+            inverted_index.addToIndex(word, reader.getCurrentFileId(), words_counter)
+            words_counter += 1
+
+    queries_reader = QueriesReader(files_directory)
+    queries = queries_reader.getQueries()
+    queries_ids = [q.id for q in queries]
+    test_keys = getQueryDocumentsMapping(files_directory, queries_ids)
+
+    for query in queries:
+        query_list = separateWords(query.query)
+        returned_docs = inverted_index.search(query_list, QueryType.AND)
+        key_docs = test_keys[query.id]
+        if len(returned_docs) == 0:
+            print("There are no relevant docs found")
+        else:
+            print("For query #{}:".format(query.id))
+            print("\tprecision: {}".format(calculatePrecision(returned_docs, key_docs)))
+            print("\trecall: {}".format(calculateRecall(returned_docs, key_docs)))
+            print("\taccuracy: {}".format(calculateAccuracy(returned_docs, key_docs, [f.id for f in reader.files])))
+
 if __name__ == "__main__":
-    fb2_directory = "E:\\books"
-    clusterizationScenario(fb2_directory)
+    fb2_directory = "E:\\books1"
+    #clusterizationScenario(fb2_directory)
     #zoneScenario(fb2_directory)
     #jokerSearchScenario(fb2_directory)
     #spimiScenario(fb2_directory)
     #phraseSearchScenario(fb2_directory)
+    testScenario(fb2_directory)
